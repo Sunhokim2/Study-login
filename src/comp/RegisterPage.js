@@ -68,7 +68,37 @@ function RegisterPage({ onClose }) {
     //  }, 1500);
     //  return;
     //}
-
+    if (isValid) {
+            try {
+              const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }), // passwordConfirm은 백엔드로 보내지 않음
+              });
+      
+              if (response.ok) {
+                const data = await response.text(); // 또는 response.json() 형태에 따라
+                console.log('회원가입 성공:', data);
+                setSignupSuccess('회원가입이 완료되었습니다!');
+                setTimeout(() => {
+                  setIsSigningUp(false);
+                  onClose();
+                }, 1500);
+              } else {
+                const errorData = await response.text(); // 또는 response.json() 형태에 따라
+                console.error('회원가입 실패:', errorData);
+                setSignupError(errorData || '회원가입에 실패했습니다.');
+              }
+            } catch (error) {
+              console.error('회원가입 요청 중 에러 발생:', error);
+              setSignupError('서버와 통신 중 오류가 발생했습니다.');
+            } finally {
+              setIsSigningUp(false);
+            }
+            return;
+          }
     
     
     setSignupError('회원가입에 실패했습니다. 입력 내용을 확인해주세요.');

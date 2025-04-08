@@ -6,10 +6,6 @@ import BasicPage from './comp/BasicPage.js'; // 로그인 후 보여질 기본 �
 import styles from './App.module.css';
 
 function App() {
-  useEffect(()=>{
-
-  })
-
 
   return (
     <BrowserRouter>
