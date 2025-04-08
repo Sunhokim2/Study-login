@@ -1,70 +1,28 @@
-# Getting Started with Create React App
+# 리액트를 통해 만드는 에임랩 프로젝트입니다.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+제 목표는 리액트를 이용해 웹게임을 제작하는 것입니다. 
 
-## Available Scripts
+에임 랩은 마우스를 이용해 랜덤하게 생성되는 공을 맞추고, 일정 시간동안 맞춘 개수에 따라 점수를 얻는 게임입니다.
 
-In the project directory, you can run:
 
-### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+0.0.0 버전은 js로만 작성되었고 현재는 리액트로 바꾸는 작업 중입니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+# 추후에 할 수 있는 것들은?
 
-### `npm test`
+✨ 백엔드를 추가하여 로그인 기능을 제작하고 다른 사람의 점수를 확인할 수 있는 점수판을 제작할 것입니다.
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+✨ 공의 움직임을 더 다양하게 만들 수 있습니다. 실제 게임에서 사용되는 연습장과 유사한 움직임을 구현해볼 생각입니다.
 
-### `npm run build`
+✨ 지도api를 받아 일정 구역에 랜덤하게 생성되는 마커를 클릭하여 점수를 얻는 게임으로 바꿔도 좋습니다.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+    그리고 그런 종류의 '모드'를 선택할 수 있도록 선택창을 제작해보는 것도 좋을 것입니다.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+잘못 누르면 패널티 추가
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+창크기 정해두기
 
-### `npm run eject`
+js의 Canvas기능을 이용해 제작해보기
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+높은점수의 원은 일정시간내로 사라지게 하기
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
