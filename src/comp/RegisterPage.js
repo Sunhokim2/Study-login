@@ -42,22 +42,35 @@ function RegisterPage({ onClose }) {
     setPasswordError('');
     setPasswordConfirmError('');
 
-    if (!email) setEmailError('이메일을 입력해주세요.');
-    if (!validatePassword(password)) setPasswordError('비밀번호는 최소 8자 이상, 대문자, 숫자, 특수문자를 포함해야 합니다.');
-    if (password !== passwordConfirm) setPasswordConfirmError('비밀번호가 일치하지 않습니다.');
-
-    if (email && validatePassword(password) && password === passwordConfirm) {
-      const { passwordConfirm, ...signupData } = formData; // passwordConfirm 제외하고 저장
-      localStorage.setItem('userData', JSON.stringify(signupData));
-      console.log('회원가입 성공:', signupData);
-      setSignupSuccess('회원가입이 완료되었습니다!');
-      setTimeout(() => {
-        setIsSigningUp(false);
-        onClose();
-      }, 1500);
-      return;
+    let isValid = true;
+    if (!email) {
+      setEmailError('이메일을 입력해주세요.');
+      isValid = false;
+    }
+    if (!validatePassword(password)){
+      setPasswordError('비밀번호는 최소 8자 이상, 대문자, 숫자, 특수문자를 포함해야 합니다.');
+      isValid = false;
+    }
+    if (password !== passwordConfirm){
+      setPasswordConfirmError('비밀번호가 일치하지 않습니다.');
+      isValid = false;
     }
 
+    // 이건 로컬스토리지 쓴거
+    //if (email && validatePassword(password) && password === passwordConfirm) {
+    //  const { passwordConfirm, ...signupData } = formData; // passwordConfirm 제외하고 저장
+    //  localStorage.setItem('userData', JSON.stringify(signupData));
+    //  console.log('회원가입 성공:', signupData);
+    //  setSignupSuccess('회원가입이 완료되었습니다!');
+    //  setTimeout(() => {
+    //    setIsSigningUp(false);
+    //    onClose();
+    //  }, 1500);
+    //  return;
+    //}
+
+    
+    
     setSignupError('회원가입에 실패했습니다. 입력 내용을 확인해주세요.');
     setIsSigningUp(false);
   };
