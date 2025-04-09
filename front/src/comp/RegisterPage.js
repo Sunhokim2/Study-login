@@ -70,7 +70,7 @@ function RegisterPage({ onClose }) {
     //}
     if (isValid) {
             try {
-              const response = await fetch('/api/register', {
+              const response = await fetch('http://localhost:8080/api/register', { //😢😢백엔드 주소로 통째로 요청해야하는데 이거맞나?
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',

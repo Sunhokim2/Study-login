@@ -14,6 +14,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:3000") // 특정 Origin 허용
 public class AuthController {
 
     private final UserRepository userRepository;
