@@ -1,9 +1,11 @@
-package com.example.demo.entity;
+package com.example.demo.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -20,7 +22,15 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    // 추가적인 사용자 정보 필드가 있다면 여기에 추가 (예: name)
+    @Column(nullable = false)
+    private boolean isVerified = false;
+
+    @Column(unique = true)
+    private String verificationToken;
+
+//    인증토큰만료시간 용
+    private LocalDateTime verificationTokenExpiry;
+    
 
     @PrePersist
     public void encryptPassword() {

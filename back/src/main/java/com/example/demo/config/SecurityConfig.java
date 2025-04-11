@@ -17,7 +17,7 @@ public class SecurityConfig {
         http
                 .csrf((csrf) -> csrf.disable()) // CSRF 비활성화 (운영 환경은 끄기)
                 .authorizeHttpRequests((requests) -> requests
-                        .requestMatchers("/api/register", "/api/login", "/api/users").permitAll()
+                        .requestMatchers("/api/send-verification-code", "/api/verify-code", "/api/register", "/api/login", "/api/users").permitAll()
                         .anyRequest().authenticated() // 그 외 모든 요청은 인증 필요
                 );
         return http.build();
