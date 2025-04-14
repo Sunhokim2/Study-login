@@ -1,9 +1,11 @@
 package com.example.demo.api.controller;
 
 
+import com.example.demo.config.JwtUtil;
 import com.example.demo.domain.entity.User;
 import com.example.demo.domain.repository.UserRepository;
 import com.example.demo.domain.service.UserService;
+import com.example.demo.dto.LoginRequestDto;
 import com.example.demo.dto.RegistrationRequestDto;
 import com.example.demo.dto.RegistrationResponseDto;
 import jakarta.validation.Valid;
@@ -25,11 +27,13 @@ public class AuthController {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
-    public AuthController(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, UserService userService) {
+    public AuthController(UserRepository userRepository, BCryptPasswordEncoder passwordEncoder, UserService userService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.userService = userService;
+        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/send-verification-code")
@@ -81,9 +85,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody Map<String, String> payload) {
-        String email = payload.get("email");
-        String password = payload.get("password");
+    public ResponseEntity<?> loginUser(@RequestBody LoginRequestDto payload) {
+        String email = payload.getEmail();
+        String password = payload.getPassword();
 
         if (email == null || password == null) {
             return new ResponseEntity<>("이메일과 비밀번호를 입력해주세요.", HttpStatus.BAD_REQUEST);
@@ -99,6 +103,8 @@ public class AuthController {
             return new ResponseEntity<>("비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
         }
 
+//        전부다 맞을시 로그인 성공. jwt토큰 발급
+//        String jwtToken = jwtUtil.generateToken();
         return new ResponseEntity<>("로그인 성공", HttpStatus.OK);
     }
 
