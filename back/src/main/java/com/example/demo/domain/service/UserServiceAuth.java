@@ -96,7 +96,7 @@ public class UserServiceAuth implements UserService {
 
     private void sendVerificationEmailHtml(String email, String token) {
         Context context = new Context();
-        context.setVariable("verificationUrl", baseUrl + "/api/auth/verify-email?token=" + token);
+        context.setVariable("verificationUrl", baseUrl + "/api/verify-email?token=" + token);
 
         String html = templateEngine.process("verification-email", context);
 
@@ -163,18 +163,21 @@ public class UserServiceAuth implements UserService {
     @Override
     @Transactional
     public void registerUser(RegistrationRequestDto requestDto) {
-        if (userRepository.findByEmail(requestDto.getEmail()).isPresent()) {
-            throw new IllegalStateException("이미 존재하는 이메일입니다.");
-        }
-        User user = new User();
-        user.setEmail(requestDto.getEmail());
-        user.setPassword(passwordEncoder.encode(requestDto.getPassword()));
-        // 최초 가입 시에는 verified가 false로 설정되어야 함
-        user.setVerified(false);
-        userRepository.save(user);
+        Optional<User> existingUserOptional = userRepository.findByEmail(requestDto.getEmail());
 
-        // 가입 후 인증 이메일 발송
-        sendVerificationEmail(requestDto.getEmail());
+        if (existingUserOptional.isPresent()) {
+            User existingUser = existingUserOptional.get();
+            // User 엔티티에 isVerified() 또는 getVerified() 메서드가 있다고 가정
+            if (existingUser.isVerified()) {
+                // 이미 존재하고 인증된 사용자의 비밀번호 업데이트
+                existingUser.setPassword(passwordEncoder.encode(requestDto.getPassword()));
+                userRepository.save(existingUser);
+                return; // 비밀번호 업데이트 후 메서드 종료
+            } else {
+                // 이미 존재하지만 아직 인증되지 않은 경우
+                throw new IllegalStateException("아직 인증되지 않았습니다.");
+            }
+        }
     }
 
 }

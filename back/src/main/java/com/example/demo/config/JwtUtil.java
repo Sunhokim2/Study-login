@@ -6,14 +6,10 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
 
 @Component
 public class JwtUtil {
@@ -21,60 +17,41 @@ public class JwtUtil {
     @Value("${jwt.secret}")
     private String secret;
 
-    private static final long JWT_TOKEN_VALIDITY = 5 * 60 * 1000; // 5분
+    @Value("${jwt.expiration}") // 토큰 유효 시간 (밀리초)
+    private long expiration;
 
-//    토큰 생성 코드
-    public String generateToken(UserDetails userDetails) {
-        Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userDetails.getUsername());
-    }
 
-    private String createToken(Map<String, Object> claims, String subject) {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        Key key = Keys.hmacShaKeyFor(keyBytes);
+    public String generateToken(String email) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(subject)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setSubject(email) // payload에 사용자 이메일 저장
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(SignatureAlgorithm.HS512, secret) // secret 문자열 직접 사용
                 .compact();
     }
 
-
-//    토큰 검증 코드
-    public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
-    }
-
-    public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token, Claims::getExpiration);
-    }
-
-    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = getAllClaimsFromToken(token);
-        return claimsResolver.apply(claims);
-    }
-
-    private Claims getAllClaimsFromToken(String token) {
-        byte[] keyBytes = Decoders.BASE64.decode(secret);
-        Key key = Keys.hmacShaKeyFor(keyBytes);
-
-        return Jwts.parser()
-                .setSigningKey(key)
-                .build()
+    public String getEmailFromToken(String token) {
+        Claims claims = Jwts.parser()
+                .setSigningKey(secret) // secret 문자열 직접 사용
                 .parseClaimsJws(token)
                 .getBody();
+        return claims.getSubject();
     }
 
-    public Boolean isTokenExpired(String token) {
-        final Date expiration = getExpirationDateFromToken(token);
-        return expiration.before(new Date());
-    }
-
-    public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = getUsernameFromToken(token);
-        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    /**
+     * 토큰의 유효성 검증. 만료되지않았는지, 변조되지 않았는지를 체크
+     * @param token
+     * @return
+     */
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(secret).parseClaimsJws(token); // secret 문자열 직접 사용
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

@@ -43,7 +43,7 @@ function RegisterPage({ onClose }) {
     setEmailError('');
     setSignupSuccess(''); // 인증 이메일 요청 성공 메시지 초기화
     try {
-      const response = await fetch('http://localhost:8080/api/auth/send-verification-email', { // API 엔드포인트 수정
+      const response = await fetch('http://localhost:8080/api/send-verification-code', { // API 엔드포인트 수정
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -114,7 +114,7 @@ function RegisterPage({ onClose }) {
 
     if (isValid) {
       try {
-        const response = await fetch('http://localhost:8080/api/auth/register', { // API 엔드포인트 수정
+        const response = await fetch('http://localhost:8080/api/register', { // API 엔드포인트 수정
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

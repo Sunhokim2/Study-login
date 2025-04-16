@@ -55,10 +55,10 @@ function LoginPage() {
         const data = await response.text(); // 또는 response.json() 형태에 따라
         console.log('로그인 성공:', data);
         setIsLoggingIn(false);
-        // TODO: 로그인 성공 후 처리 (예: 토큰 저장, 상태 업데이트)
+        // 로그인 성공 후 처리 (상태업데이트같은것)
         navigate('/Basicpage');
       } else if (response.status === 401) {
-        const errorData = await response.text(); // 또는 response.json() 형태에 따라
+        const errorData = await response.text(); // or response.json() 형태에 따라
         console.error('로그인 실패:', errorData);
         setLoginError(errorData || '아이디 또는 비밀번호가 틀렸습니다.');
       } else {

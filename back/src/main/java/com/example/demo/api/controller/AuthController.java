@@ -36,6 +36,11 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
     }
 
+    /**
+     * -code로 되어있는데 이메일 보내는 거임. 코드인증이 아닌 이메일 토큰인증 방식을 사용하는 것임
+     * @param payload
+     * @return
+     */
     @PostMapping("/send-verification-code")
     public ResponseEntity<RegistrationResponseDto> sendVerificationCode(@RequestBody Map<String, String> payload) {
         String email = payload.get("email");
@@ -66,6 +71,12 @@ public class AuthController {
         }
     }
 
+    /**
+     * 이메일 인증. 사용자가 이메일 받아서 버튼누르면 시행되는 api. 추후에 프론트엔드 주소를 호출하는 것으로해서
+     * 프론트페이지를 보이게 할 수 있다. 지금은 백엔드 메세지만 날아간다.
+     * @param token
+     * @return
+     */
     @GetMapping("/verify-email") // 메소드 이름 및 요청 방식 변경 (GET 요청으로 처리)
     public ResponseEntity<RegistrationResponseDto> verifyEmail(@RequestParam("token") String token) {
         if (token == null || token.trim().isEmpty()) {
@@ -96,6 +107,11 @@ public class AuthController {
         }
     }
 
+    /**
+     * 로그인 성공시 jwt토큰 발급한다.
+     * @param payload
+     * @return
+     */
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody LoginRequestDto payload) {
         String email = payload.getEmail();
@@ -106,8 +122,8 @@ public class AuthController {
         }
 
         Optional<User> userOptional = userRepository.findByEmail(email);
-        if (userOptional.isEmpty()) {
-            return new ResponseEntity<>("존재하지 않는 이메일입니다.", HttpStatus.UNAUTHORIZED);
+        if (userOptional.isEmpty() || !userOptional.get().isVerified()) { // 이메일 인증 여부 확인 추가
+            return new ResponseEntity<>("존재하지 않는 이메일이거나 이메일 인증이 필요합니다.", HttpStatus.UNAUTHORIZED);
         }
 
         User user = userOptional.get();
@@ -115,9 +131,9 @@ public class AuthController {
             return new ResponseEntity<>("비밀번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
         }
 
-//        전부다 맞을시 로그인 성공. jwt토큰 발급
-//        String jwtToken = jwtUtil.generateToken();
-        return new ResponseEntity<>("로그인 성공", HttpStatus.OK);
+        // 전부 다 맞을 시 로그인 성공. jwt토큰 발급
+        String jwtToken = jwtUtil.generateToken(user.getEmail()); // JWT 토큰 생성 시 이메일(또는 사용자 식별 정보) 포함
+        return ResponseEntity.ok(Map.of("token", jwtToken)); // JWT 토큰을 응답 body에 담아서 반환
     }
 
     @GetMapping("/users")
