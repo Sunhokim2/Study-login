@@ -6,20 +6,22 @@ function RegisterPage({ onClose }) {
     email: '',
     password: '',
     passwordConfirm: '',
-    verificationCode: '', // 인증 코드 필드 추가
+    // 인증은 이제 이메일확인버튼으로 대체됩니다.
+    // verificationCode: '', // 인증 코드 필드 추가
   });
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [passwordConfirmError, setPasswordConfirmError] = useState('');
-  const [verificationCodeError, setVerificationCodeError] = useState('');
-  const [isSendingCode, setIsSendingCode] = useState(false);
-  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [isSendingEmail, setIsSendingEmail] = useState(false);
+  // const [verificationCodeError, setVerificationCodeError] = useState('');
+  // const [isSendingCode, setIsSendingCode] = useState(false);
+  // const [isVerifyingCode, setIsVerifyingCode] = useState(false);
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [signupError, setSignupError] = useState('');
   const [signupSuccess, setSignupSuccess] = useState('');
-  const [verificationSuccess, setVerificationSuccess] = useState(false); // 인증 성공 여부 상태
+  // const [verificationSuccess, setVerificationSuccess] = useState(false); // 인증 성공 여부 상태
 
-  const { email, password, passwordConfirm, verificationCode } = formData;
+  const { email, password, passwordConfirm } = formData;
 
   const validatePassword = (pw) => {
     const hasUpperCase = /[A-Z]/.test(pw);
@@ -36,12 +38,12 @@ function RegisterPage({ onClose }) {
     });
   };
 
-  const handleSendVerificationCode = async () => {
-    setIsSendingCode(true);
+  const handleSendVerificationEmail = async () => {
+    setIsSendingEmail(true);
     setEmailError('');
-    setSignupSuccess(''); // 인증 코드 요청 성공 메시지 초기화
+    setSignupSuccess(''); // 인증 이메일 요청 성공 메시지 초기화
     try {
-      const response = await fetch('http://localhost:8080/api/send-verification-code', {
+      const response = await fetch('http://localhost:8080/api/auth/send-verification-email', { // API 엔드포인트 수정
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -50,57 +52,51 @@ function RegisterPage({ onClose }) {
       });
       const data = await response.json();
       if (response.ok) {
-        setSignupSuccess(data.message); // 인증 코드 발송 성공 메시지 표시
+        setSignupSuccess(data.message + ' 이메일함을 확인하여 인증을 완료해주세요.'); // 성공 메시지 업데이트
       } else {
-        setEmailError(data.message || '인증 코드 발송에 실패했습니다.');
+        setEmailError(data.message || '인증 이메일 발송에 실패했습니다.');
       }
     } catch (error) {
-      console.error('인증 코드 요청 중 에러 발생:', error);
+      console.error('인증 이메일 요청 중 에러 발생:', error);
       setEmailError('서버와 통신 중 오류가 발생했습니다.');
     } finally {
-      setIsSendingCode(false);
+      setIsSendingEmail(false);
     }
   };
 
-  const handleVerifyCode = async () => {
-    setIsVerifyingCode(true);
-    setVerificationCodeError('');
-    setSignupSuccess(''); // 인증 성공 메시지 초기화
-    try {
-      const response = await fetch('http://localhost:8080/api/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, code: verificationCode }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setVerificationSuccess(true); // 인증 성공 상태 업데이트
-        setSignupSuccess(data.message); // 인증 성공 메시지 표시
-      } else {
-        setVerificationCodeError(data.message || '인증에 실패했습니다.');
-        setVerificationSuccess(false); // 인증 실패 시 상태 업데이트
-      }
-    } catch (error) {
-      console.error('인증 코드 확인 중 에러 발생:', error);
-      setVerificationCodeError('서버와 통신 중 오류가 발생했습니다.');
-      setVerificationSuccess(false);
-    } finally {
-      setIsVerifyingCode(false);
-    }
-  };
+  // const handleVerifyCode = async () => {
+  //   setIsVerifyingCode(true);
+  //   setVerificationCodeError('');
+  //   setSignupSuccess(''); // 인증 성공 메시지 초기화
+  //   try {
+  //     const response = await fetch('http://localhost:8080/api/verify-code', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify({ email, code: verificationCode }),
+  //     });
+  //     const data = await response.json();
+  //     if (response.ok) {
+  //       setVerificationSuccess(true); // 인증 성공 상태 업데이트
+  //       setSignupSuccess(data.message); // 인증 성공 메시지 표시
+  //     } else {
+  //       setVerificationCodeError(data.message || '인증에 실패했습니다.');
+  //       setVerificationSuccess(false); // 인증 실패 시 상태 업데이트
+  //     }
+  //   } catch (error) {
+  //     console.error('인증 코드 확인 중 에러 발생:', error);
+  //     setVerificationCodeError('서버와 통신 중 오류가 발생했습니다.');
+  //     setVerificationSuccess(false);
+  //   } finally {
+  //     setIsVerifyingCode(false);
+  //   }
+  // };
 
   const handleSignupSubmit = async (e) => {
     e.preventDefault();
     setIsSigningUp(true);
     setSignupError('');
-
-    if (!verificationSuccess) {
-      setSignupError('이메일 인증을 먼저 완료해주세요.');
-      setIsSigningUp(false);
-      return;
-    }
 
     let isValid = true;
     if (!password) {
@@ -118,7 +114,7 @@ function RegisterPage({ onClose }) {
 
     if (isValid) {
       try {
-        const response = await fetch('http://localhost:8080/api/register', {
+        const response = await fetch('http://localhost:8080/api/auth/register', { // API 엔드포인트 수정
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -152,82 +148,64 @@ function RegisterPage({ onClose }) {
   };
 
   return (
-    <div className={`${styles.authPage} ${styles.modal}`}>
-      <h2>회원가입</h2>
-      <button type="button" onClick={onClose} className={styles.closeButton}>
-        X
-      </button>
-      <form onSubmit={handleSignupSubmit} className={styles.authForm}>
-        <div className={styles.formGroup}>
-          <label htmlFor="email">이메일</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            placeholder="이메일 주소를 입력하세요"
-            value={email}
-            onChange={handleChange}
-            readOnly={verificationSuccess} // 인증 성공 후 이메일 수정 불가
-          />
-          {emailError && <p className={styles.errorMessage}>{emailError}</p>}
-          {!verificationSuccess && (
-            <button type="button" onClick={handleSendVerificationCode} disabled={isSendingCode || verificationSuccess}>
-              {isSendingCode ? '인증 코드 전송 중...' : '인증 코드 받기'}
-            </button>
-          )}
-        </div>
-
-        {!verificationSuccess && (
-          <div className={styles.formGroup}>
-            <label htmlFor="verificationCode">인증 코드</label>
-            <input
-              type="text"
-              id="verificationCode"
-              name="verificationCode"
-              placeholder="인증 코드를 입력하세요"
-              value={verificationCode}
-              onChange={handleChange}
-            />
-            {verificationCodeError && <p className={styles.errorMessage}>{verificationCodeError}</p>}
-            <button type="button" onClick={handleVerifyCode} disabled={isVerifyingCode}>
-              {isVerifyingCode ? '인증 확인 중...' : '인증 확인'}
-            </button>
-          </div>
-        )}
-
-        <div className={styles.formGroup}>
-          <label htmlFor="password">비밀번호</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            placeholder="비밀번호를 입력하세요"
-            value={password}
-            onChange={handleChange}
-          />
-          {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
-        </div>
-        <div className={styles.formGroup}>
-          <label htmlFor="passwordConfirm">비밀번호 확인</label>
-          <input
-            type="password"
-            id="passwordConfirm"
-            name="passwordConfirm"
-            placeholder="비밀번호를 다시 입력하세요"
-            value={passwordConfirm}
-            onChange={handleChange}
-          />
-          {passwordConfirmError && <p className={styles.errorMessage}>{passwordConfirmError}</p>}
-        </div>
-
-        {signupError && <p className={styles.errorMessage}>{signupError}</p>}
-        {signupSuccess && <p className={styles.successMessage}>{signupSuccess}</p>}
-
-        <button type="submit" disabled={isSigningUp || !verificationSuccess} className={styles.submitButton}>
-          {isSigningUp ? '회원가입 중...' : '회원가입'}
+      <div className={`${styles.authPage} ${styles.modal}`}>
+        <h2>회원가입</h2>
+        <button type="button" onClick={onClose} className={styles.closeButton}>
+          X
         </button>
-      </form>
-    </div>
+        <form onSubmit={handleSignupSubmit} className={styles.authForm}>
+          <div className={styles.formGroup}>
+            <label htmlFor="email">이메일</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="이메일 주소를 입력하세요"
+                value={email}
+                onChange={handleChange}
+                readOnly={signupSuccess.includes('인증을 완료해주세요')} // 인증 이메일 발송 후 수정 불가
+            />
+            {emailError && <p className={styles.errorMessage}>{emailError}</p>}
+            {!signupSuccess.includes('인증을 완료해주세요') && (
+                <button type="button" onClick={handleSendVerificationEmail} disabled={isSendingEmail}>
+                  {isSendingEmail ? '인증 이메일 전송 중...' : '인증 이메일 받기'}
+                </button>
+            )}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="password">비밀번호</label>
+            <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="비밀번호를 입력하세요"
+                value={password}
+                onChange={handleChange}
+            />
+            {passwordError && <p className={styles.errorMessage}>{passwordError}</p>}
+          </div>
+          <div className={styles.formGroup}>
+            <label htmlFor="passwordConfirm">비밀번호 확인</label>
+            <input
+                type="password"
+                id="passwordConfirm"
+                name="passwordConfirm"
+                placeholder="비밀번호를 다시 입력하세요"
+                value={passwordConfirm}
+                onChange={handleChange}
+            />
+            {passwordConfirmError && <p className={styles.errorMessage}>{passwordConfirmError}</p>}
+          </div>
+
+          {signupError && <p className={styles.errorMessage}>{signupError}</p>}
+          {signupSuccess && <p className={styles.successMessage}>{signupSuccess}</p>}
+
+          <button type="submit" disabled={isSigningUp || !signupSuccess.includes('인증을 완료해주세요')} className={styles.submitButton}>
+            {isSigningUp ? '회원가입 중...' : '회원가입'}
+          </button>
+        </form>
+      </div>
   );
 }
 

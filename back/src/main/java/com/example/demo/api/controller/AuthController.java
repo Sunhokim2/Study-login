@@ -43,12 +43,12 @@ public class AuthController {
             return new ResponseEntity<>(new RegistrationResponseDto("이메일을 입력해주세요."), HttpStatus.BAD_REQUEST);
         }
         try {
-            userService.sendVerificationCode(email);
-            return new ResponseEntity<>(new RegistrationResponseDto("인증 코드를 이메일로 발송했습니다."), HttpStatus.OK);
+            userService.sendVerificationEmail(email);
+            return new ResponseEntity<>(new RegistrationResponseDto("인증 이메일을 발송했습니다."), HttpStatus.OK);
         } catch (IllegalStateException e) {
             return new ResponseEntity<>(new RegistrationResponseDto(e.getMessage()), HttpStatus.CONFLICT);
         } catch (Exception e) {
-            return new ResponseEntity<>(new RegistrationResponseDto("인증 코드 발송 중 오류가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new RegistrationResponseDto("인증 이메일 발송 중 오류가 발생했습니다."), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,12 +66,24 @@ public class AuthController {
         }
     }
 
+    @GetMapping("/verify-email") // 메소드 이름 및 요청 방식 변경 (GET 요청으로 처리)
+    public ResponseEntity<RegistrationResponseDto> verifyEmail(@RequestParam("token") String token) {
+        if (token == null || token.trim().isEmpty()) {
+            return new ResponseEntity<>(new RegistrationResponseDto("인증 토큰이 유효하지 않습니다."), HttpStatus.BAD_REQUEST);
+        }
+        if (userService.verifyEmailToken(token)) {
+            return new ResponseEntity<>(new RegistrationResponseDto("이메일 인증에 성공했습니다."), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(new RegistrationResponseDto("이메일 인증에 실패했습니다. 토큰이 유효하지 않거나 만료되었을 수 있습니다."), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @PostMapping("/register")
     public ResponseEntity<RegistrationResponseDto> registerUser(@Valid @RequestBody RegistrationRequestDto requestDto) {
         try {
             userService.registerUser(requestDto);
             RegistrationResponseDto responseDto = new RegistrationResponseDto();
-            responseDto.setMessage("회원가입에 성공했습니다.");
+            responseDto.setMessage("회원가입에 성공했습니다. 이메일인증을 완료해주세요.");
             return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
         } catch (IllegalStateException e) {
             RegistrationResponseDto responseDto = new RegistrationResponseDto();
